@@ -37,12 +37,12 @@ create table Vivienda(
     piso varchar(20),
     id_agencia int,
     id_propietario int,
-    foreign key (id_propietario) references Propietario(id),
-    foreign key (id_agencia) references agencia(id)
+    foreign key (id_propietario) references Propietario(id) on update cascade,
+    foreign key (id_agencia) references agencia(id) on update cascade
 );
 
 insert into Vivienda values (1, 'Vivienda 1', 1, 12345, 'Almeria', 'Piso 1', 1, 1);
-insert into Vivienda values (2, 'Vivienda 2', 2, 54321, 'Jaen', 'Piso 2', 2, 1);
+insert into Vivienda values (2, 'Vivienda 2', 2, 54321, 'Albox', 'Piso 2', 2, 1);
 insert into Vivienda values (3, 'Vivienda 3', 3, 98765, 'Huelva', 'Piso 3', 1, 3);
 insert into Vivienda values (4, 'Vivienda 4', 4, 67890, 'Almeria', 'Piso 4', 2, 4);
 
@@ -70,19 +70,19 @@ create table Alquiler (
     importe int,
     id_inquilino int,
     id_vivienda int,
-    foreign key (id_inquilino) references Inquilino(id),
-    foreign key (id_vivienda) references Vivienda(id)
+    foreign key (id_inquilino) references Inquilino(id) on update cascade,
+    foreign key (id_vivienda) references Vivienda(id) on update cascade
 );
 
-insert into Alquiler values (1, '2020-01-01', '2020-12-31', '2020-01-01', 1000, 100000, 1, 1);
-insert into Alquiler values (2, '2021-01-01', '2021-12-31', '2021-01-01', 2000, 200000, 2, 2);
-insert into Alquiler values (3, '2022-01-01', '2022-12-31', '2022-01-01', 3000, 300000, 3, 3);
-insert into Alquiler values (4, '2023-01-01', '2023-12-31', '2023-01-01', 4000, 400000, 4, 4);
+insert into Alquiler values (1, '2020-01-01', '2020-12-31', '2020-01-01', 1000, 1000, 1, 1);
+insert into Alquiler values (2, '2021-01-01', '2021-12-31', '2021-01-01', 250, 600, 2, 2);
+insert into Alquiler values (3, '2022-01-01', '2022-12-31', '2022-01-01', 600, 380, 3, 3);
+insert into Alquiler values (4, '2023-01-01', '2023-12-31', '2023-01-01', 400, 400, 4, 4);
 
 create table Renovada(
     id int primary key,
     id_alquiler int,
-    foreign key (id_alquiler) references alquiler(id)
+    foreign key (id_alquiler) references alquiler(id) on update cascade
 );
 
 insert into Renovada values (1, 1);
@@ -113,3 +113,23 @@ update alquiler set importe = importe * 1.025;
 
 --Borra las agencias que no ofertan viviendas
 delete from agencia where id not in (select id_agencia from vivienda);
+
+--Cambia el ID de un propietario.
+--(esto es antes para ver cómo estba antes)
+select id, nombre from propietario;
+--(después)
+update propietario set id = 5 where id = 1;
+
+--Extrae la información de las viviendas que tienen un alquiler superior a 500€.
+select * from alquiler where importe > 500;
+
+--De cada alquiler, extrae extrae quién lo alquiló y por cuánto tiempo lo hizo.
+select id_inquilino, fecha_fin - fecha_inicio from alquiler;
+
+--Borra los propietarios que no tienen viviendas en Albox.
+alter table vivienda drop foreign key vivienda_ibfk_2;
+alter table vivienda add foreign key (id_propietario) references propietario(id) on update cascade on delete cascade;
+delete from propietario where id not in (select id_propietario from vivienda where poblacion = 'Albox');
+
+--Incrementa un 21% el importe de todos los alquileres con importe inverior a 500€.
+update alquiler set importe = importe * 1.21 where importe < 500;
