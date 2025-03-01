@@ -25,7 +25,7 @@ create table Suministra(
     primary key (id_proveedor, id_pieza),
     foreign key (id_proveedor) references Proveedor(codigo),
     foreign key (id_pieza) references Pieza(codigo)
-)
+);
 
 --=============================================================================================
 
